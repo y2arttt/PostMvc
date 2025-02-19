@@ -4,8 +4,8 @@
 ### 목적
 MVC패턴과 JDBC를 이해하기 위한 모작
 
--Mybatis를 활용하여 SQLMapper 사용 연습
--스프링 시큐리티를 사용하여 비밀번호 인코딩
+- Mybatis를 활용하여 SQLMapper 사용 연습
+- 스프링 시큐리티를 사용하여 비밀번호 인코딩
 
 ### 참고한 자료
 https://wikidocs.net/267987
