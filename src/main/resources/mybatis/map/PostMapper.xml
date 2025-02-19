@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="postMapper">
+
+    <resultMap id="postsResultMap" type="com.PostMvc.PostMvc.domain.PostVo">
+        <result property="id" column="ID" />
+        <result property="title" column="TITLE" />
+        <result property="content" column="CONTENT" />
+        <result property="username" column="USERNAME" />
+        <result property="createdBy" column="CREATED_BY" />
+        <result property="createdAt" column="CREATED_AT" />
+        <result property="updatedAt" column="UPDATED_AT" />
+    </resultMap>
+
+    <insert id="create" parameterType="com.PostMvc.PostMvc.domain.PostVo" useGeneratedKeys="true" keyProperty="id">
+        <![CDATA[
+        INSERT INTO POSTS (
+            TITLE,
+            CONTENT,
+            CREATED_BY,
+
+        ) VALUES (
+                     #{title},
+                     #{content},
+                     #{createdBy}
+                 )
+        ]]>
+    </insert>
+
+    <select id="list" resultMap="postsResultMap" parameterType="map">
+        <![CDATA[
+            A.ID,
+            A.TITLE,
+            A.CONTENT,
+            A.CREATED_BY,
+            A.CREATED_AT,
+            A.UPDATED_AT,
+            B.USERNAME
+        FROM
+                POSTS A, USERS B
+        WHERE A.CREATE_BY = B.USER_ID
+        ]]>
+        <if test="searchType != null and searchKeyword != null">
+            <choose>
+                <when test="searchType == 'title">
+                    <![CDATA[
+                    AND A.TITLE LIKE CONCAT('%',#{searchKeyword},"%")
+                    ]]>
+                </when>
+                <when test="searchType == 'content'">
+                    <![CDATA[
+                    AND A.CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
+                    ]]>
+                </when>
+                <when test="searchType == 'username'">
+                    <![CDATA[
+                    AND B.USERNAME LIKE CONCAT('%', #{searchKeyword}, '%')
+                    ]]>
+                </when>
+                <when test="searchType == 'all'">
+                    <![CDATA[
+                    AND (
+                        A.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+                        OR A.CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
+                        OR B.USERNAME LIKE CONCAT('%', #{searchKeyword}, '%')
+                    )
+                    ]]>
+                </when>
+            </choose>
+        </if>
+        <![CDATA[
+        ORDER BY A.ID DESCRIBE
+        LIMIT #{offset}, #{pageSize}
+        ]]>
+    </select>
+
+    <select id="read" resultMap="postsResultMap">
+        <![CDATA[
+        SELECT
+            A.ID,
+            A.TITLE,
+            A.CONTENT,
+            A.CREATED_BY,
+            A.CREATED_AT,
+            A.UPDATED_AT,
+            B.USERNAME
+        FROM
+            POSTS A
+                LEFT JOIN USERS B ON A.CREATED_BY = B.USER_ID
+        WHERE
+            A.ID = #{id}
+        ]]>
+    </select>
+
+    <update id="update">
+        UPDATE
+            POSTS
+        SET
+            TITLE = #{title},
+            CONTENT = #{content},
+
+        WHERE
+            ID = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM
+            POSTS
+        WHERE
+            ID = #{id}
+    </delete>
+    <select id="getTotalCount" resultType="int">
+        <![CDATA[
+        SELECT COUNT(*) FROM POSTS A, USERS B WHERE A.CREATED_BY = B.USER_ID
+        ]]>
+        <if test="searchType != null and searchKeyword != null">
+            <choose>
+                <when test="searchType == 'title'">
+                    <![CDATA[
+                    AND A.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+                    ]]>
+                </when>
+                <when test="searchType == 'content'">
+                    <![CDATA[
+                    AND A.CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
+                    ]]>
+                </when>
+                <when test="searchType == 'username'">
+                    <![CDATA[
+                    AND B.USERNAME LIKE CONCAT('%', #{searchKeyword}, '%')
+                    ]]>
+                </when>
+                <when test="searchType == 'all'">
+                    <![CDATA[
+                    AND (
+                        A.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+                        OR A.CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
+                        OR B.USERNAME LIKE CONCAT('%', #{searchKeyword}, '%')
+                    )
+                    ]]>
+                </when>
+            </choose>
+        </if>
+    </select>
+</mapper>
